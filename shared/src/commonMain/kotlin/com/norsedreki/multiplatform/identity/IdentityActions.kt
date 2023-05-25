@@ -19,5 +19,7 @@ sealed interface IdentityActions {
     //Introduce Email class
     data class ResetPassword(val forEmail: String): IdentityActions
 
+    data class VerifyRegistration(val forEmail: String, val token: String): IdentityActions
+
     object LogOut : IdentityActions
 }

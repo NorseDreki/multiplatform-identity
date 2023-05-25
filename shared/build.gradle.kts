@@ -34,6 +34,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 //put your multiplatform dependencies here
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
             }
         }
         val commonTest by getting {
