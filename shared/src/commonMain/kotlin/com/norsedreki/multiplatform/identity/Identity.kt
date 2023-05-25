@@ -5,6 +5,8 @@ import com.norsedreki.multiplatform.identity.IdentityActions.*
 class Identity {
     var state: String = "undefined"
 
+    val st = IdentityState()
+
     //Extract to actions handler
     operator fun invoke(action: IdentityActions) {
         when (action) {
@@ -13,6 +15,12 @@ class Identity {
             is ResetPassword -> TODO()
             is SignUp -> TODO()
             is VerifyRegistration -> TODO()
+            is AddAuthenticationFactor -> TODO()
+            AnonymousLogin -> TODO()
+            RefreshToken -> TODO()
+            is SetPin -> TODO()
+            is SolveChallenge -> TODO()
+            ValidateEmail -> TODO()
         }
     }
 

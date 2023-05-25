@@ -1,6 +1,8 @@
 package com.norsedreki.multiplatform.identity
 
 import com.norsedreki.multiplatform.identity.IdentityActions.*
+import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
@@ -38,9 +40,11 @@ class IdentityTest {
 
         sut(LogOut)
 
-        val state = sut.state
+        runBlocking {
+            val s = sut.st.state.single()
 
-        assertTrue("Expected being logged out after logging in") { state == "loggedOut" }
+            assertTrue("Expected being logged out after logging in") { s == AdtState.NotLoggedIn }
+        }
     }
 
     @Test
