@@ -38,4 +38,6 @@ sealed interface IdentityActions {
     data class SetPin(val pin: Int) : IdentityActions
 
     data class AddAuthenticationFactor(val factor: String) : IdentityActions
+
+    object PickSystemAccount : IdentityActions
 }

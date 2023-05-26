@@ -21,6 +21,7 @@ class Identity {
             is SetPin -> TODO()
             is SolveChallenge -> TODO()
             ValidateEmail -> TODO()
+            PickSystemAccount -> TODO()
         }
     }
 
