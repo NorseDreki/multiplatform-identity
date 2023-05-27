@@ -1,6 +1,6 @@
 package com.norsedreki.multiplatform.identity
 
-sealed interface IdentityActions {
+sealed interface IdentityActions : Event {
 
     sealed interface WithPassword : IdentityActions {
 
@@ -40,4 +40,10 @@ sealed interface IdentityActions {
     data class AddAuthenticationFactor(val factor: String) : IdentityActions
 
     object PickSystemAccount : IdentityActions
+
+    data class ChangePassword(val p: String) : IdentityActions
+
+    object Delete
+
+    //data class AddAuthenticationFactor()
 }
