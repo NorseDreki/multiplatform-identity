@@ -1,15 +1,35 @@
 package com.norsedreki.multiplatform.identity
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 
 class IdentityState : State {
     override val isLoggedIn: Flow<Boolean>
         get() = TODO("Not yet implemented")
     override val accessToken: Flow<String>
         get() = TODO("Not yet implemented")
-    override val state: Flow<AdtState>
-        get() = flowOf(AdtState.NotLoggedIn)
+
+
+    private val stateSubject = MutableSharedFlow<AdtState>(
+    // replay = 2,
+    // onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    // extraBufferCapacity = 1
+    )
+
+    override val state = stateSubject.asSharedFlow()
+
+    val subscribingScope = CoroutineScope(Dispatchers.Unconfined) //CoroutineScope(SupervisorJob())
+
+    fun update(newState: AdtState) {
+        subscribingScope.launch {
+            stateSubject.emit(newState)
+        }
+    }
 }
 
 interface State {
@@ -39,7 +59,7 @@ sealed interface AdtState {
     data class AwaitingChallenge(val type: Challenge) : AdtState
 
     data class LoggedIn(
-        val email: String, val accessToken: String, val expiresIn: Int, val withProvider: String)
+        val email: String, val accessToken: String, val expiresIn: Int, val withProvider: String) : AdtState
 }
 
 enum class Challenge {

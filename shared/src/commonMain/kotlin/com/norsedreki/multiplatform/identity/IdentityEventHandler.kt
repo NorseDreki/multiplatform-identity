@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.subscribe
 class IdentityEventHandler
 internal constructor(
     private val dispatcher: Dispatcher,
-    private var state: String
+    private val state: IdentityState
 ) : EventsHandler<IdentityActions> {
 
     override fun setup() {
@@ -50,11 +50,11 @@ internal constructor(
     }
 
     private fun loginWithPassword(action: LogIn.WithPassword) {
-        state = "loggedIn"
+        state.update(AdtState.LoggedIn("111", "111", 0, "222"))
         println("State = $state")
     }
 
     fun logout() {
-        state = "loggedOut"
+        state.update(AdtState.NotLoggedIn)
     }
 }

@@ -5,11 +5,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class Identity {
-    var state: String = "undefined"
-
-    val st = IdentityState()
-
     val dispatcher = Dispatcher()
+
+    val state = IdentityState()
 
     val eh = IdentityEventHandler(dispatcher, state)
 
@@ -42,13 +40,5 @@ class Identity {
             ValidateEmail -> TODO()
             PickSystemAccount -> TODO()
         }*/
-    }
-
-    private fun loginWithPassword(action: LogIn.WithPassword) {
-        state = "loggedIn"
-    }
-
-    fun logout() {
-        state = "loggedOut"
     }
 }

@@ -8,9 +8,11 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -44,6 +46,14 @@ class IdentityTest {
         val identity = Identity()
 
         val publisher = Publisher()
+
+        val dest = mutableListOf<AdtState>()
+
+        identity.state.subscribingScope.launch {
+            identity.state.state
+                .onEach { println("Next state $it") }
+                .toList(dest)
+        }
 
 
         //runBlocking {
@@ -81,7 +91,10 @@ class IdentityTest {
             //delay(1000)
         //}
 
-        assertTrue { identity.state == "loggedIn" }
+        runBlocking {
+            assertTrue { dest[0] is AdtState.LoggedIn }
+            identity(LogOut)
+        }
     }
 
     @Test
@@ -107,7 +120,7 @@ class IdentityTest {
         sut(LogOut)
 
         runBlocking {
-            val s = sut.st.state.single()
+            val s = sut.state.state.first()
 
             assertTrue("Expected being logged out after logging in") { s == AdtState.NotLoggedIn }
         }
