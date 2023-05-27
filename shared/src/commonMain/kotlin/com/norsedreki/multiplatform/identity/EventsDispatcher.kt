@@ -21,39 +21,12 @@ import kotlinx.coroutines.plus
 
 class EventsDispatcher<E : Event> {
 
-/*    private val eventsSubject = PublishSubject.create<E>()
-
-    internal val events = eventsSubject.hide()
-
-    internal inline fun <reified T : E> ofType(): Observable<T> {
-        return events
-            .ofType(T::class.java)
-    }
-
-    internal inline fun <reified T : E> ofType(scheduler: Scheduler): Observable<T> {
-        return ofType<T>()
-            .observeOn(scheduler)
-    }
-
-    operator fun invoke(event: E) = eventsSubject.onNext(event)*/
-
     //private val appCoroutineScope: CoroutineScope = GlobalScope + Dispatchers.Default
     private val appCoroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     val subscribingScope = CoroutineScope(Unconfined) //CoroutineScope(SupervisorJob())
 
     operator fun invoke(event: E) {
-        /*eventSubject
-            .onEach { println("123123 $it") }
-            .onCompletion { cause -> println("222222 $cause") }
-            .catch { cause -> println("33333 $cause") }
-            .launchIn(subscribingScope)
-
-        val c = eventSubject.subscriptionCount.value
-        println("Subs $c")
-        val e = eventSubject.tryEmit(event)*/
-        //println("Emitted? $e for $event")
-
         subscribingScope.launch {
             val c = eventSubject.subscriptionCount.value
             println("Subs $c, event $event")
@@ -92,19 +65,6 @@ class EventsDispatcher<E : Event> {
     /*Comparison with Rx
     StateFlow → BehaviorSubject
     SharedFlow → PublishSubject*/
-
-    fun aaa() {
-        getEventObservable() // called on onAttach()
-
-            //.flowOn(Dispatchers.Main)
-            .launchIn(GlobalScope)
-            //.launchIn(this@MyActivity.lifecycleScope)
-            //.launchIn(Dispatchers.Default)
-            //.launchIn(CoroutineScope())
-            //.onEach(this::handleEvent)
-            //.catch(this::defaultHandleException)
-            //.launchIn(viewLifecycleOwner.lifecycleScope or viewModelScope) // from lifecycle-viewmodel-ktx:2.6.1
-    }
 
     /*
     Since Coroutines 1.4.0 (Nov 2020), SharedFlow and StateFlow are the new equivalents for RxJava Subjects.

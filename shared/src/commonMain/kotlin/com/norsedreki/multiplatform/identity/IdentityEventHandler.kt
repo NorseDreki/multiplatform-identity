@@ -17,8 +17,6 @@ internal constructor(
         println("Set up handler $this")
         val job = dispatcher
             .ofType<IdentityActions>()
-            //.eventSubject
-            //.takeUntil(dispatcher.ofType<ResetState>())
             .onEach {
                 println("Got event $it")
                 when (it) {
@@ -41,12 +39,6 @@ internal constructor(
             }
             .catch { println("11111 $it") }
             .launchIn(dispatcher.subscribingScope)
-
-        //job.start()
-        //dispatcher(AnonymousLogin)
-
-        //val emitted = tryEmit(value)
-        //check(emitted){ "Failed to emit into shared flow." }
     }
 
     private fun loginWithPassword(action: LogIn.WithPassword) {
@@ -54,7 +46,7 @@ internal constructor(
         println("State = $state")
     }
 
-    fun logout() {
+    private fun logout() {
         state.update(AdtState.NotLoggedIn)
     }
 }
