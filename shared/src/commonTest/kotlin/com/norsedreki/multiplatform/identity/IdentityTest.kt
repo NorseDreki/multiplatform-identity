@@ -21,31 +21,9 @@ import kotlin.test.assertTrue
 
 class IdentityTest {
 
-    class Publisher {
-        //val publishingScope = CoroutineScope(SupervisorJob())
-        val publishingScope = CoroutineScope(Dispatchers.Unconfined)
-
-        val messagesFlow = MutableSharedFlow<Int>(
-/*            replay = 0,
-            extraBufferCapacity = 0,*/
-            //onBufferOverflow = BufferOverflow.SUSPEND
-        )/*.also { flow ->
-            // emit messages
-            publishingScope.launch {
-                repeat(100000) {
-                    println("emitting $it")
-                    flow.emit(it)
-                    delay(500)
-                }
-            }
-        }*/
-    }
-
     @Test
     fun shouldLoginWithCorrectEmailPassword() {
         val identity = Identity()
-
-        val publisher = Publisher()
 
         val dest = mutableListOf<AdtState>()
 
@@ -55,41 +33,9 @@ class IdentityTest {
                 .toList(dest)
         }
 
-
-        //runBlocking {
-
-
-            identity(
-                LogIn.WithPassword("dummy", "dummy")
-            )
-            val flow = publisher.messagesFlow
-
-            flow.onEach { println("I am colllecting message $it") }
-                .catch { println("Ex $it") }
-                .launchIn(publisher.publishingScope)
-
-            flow.tryEmit(1)
-            flow.tryEmit(1)
-            flow.tryEmit(1)
-            flow.tryEmit(1)
-
-
-            publisher.publishingScope.launch {
-                flow.emit(1)
-                flow.emit(2)
-                flow.emit(3)
-                flow.emit(4)
-                flow.emit(5)
-                flow.emit(6)
-                flow.emit(7)
-                flow.emit(8)
-                flow.emit(9)
-                flow.emit(10)
-                println("Subs count: ${flow.subscriptionCount.value}")
-
-            }
-            //delay(1000)
-        //}
+        identity(
+            LogIn.WithPassword("dummy", "dummy")
+        )
 
         runBlocking {
             assertTrue { dest[0] is AdtState.LoggedIn }
