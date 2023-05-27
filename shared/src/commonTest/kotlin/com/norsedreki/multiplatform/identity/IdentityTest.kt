@@ -4,6 +4,7 @@ import com.norsedreki.multiplatform.identity.IdentityActions.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,11 +16,18 @@ import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class IdentityTest {
+
+    @Test
+    fun should1() = runTest {
+
+    }
 
     @Test
     fun shouldLoginWithCorrectEmailPassword() {
@@ -37,7 +45,20 @@ class IdentityTest {
             LogIn.WithPassword("dummy", "dummy")
         )
 
+
+
+
         runBlocking {
+            launch {
+
+            }
+
+            async {  }
+
+            withContext(Dispatchers.Default) {
+                //async {  }
+            }
+
             assertTrue { dest[0] is AdtState.LoggedIn }
             identity(LogOut)
         }

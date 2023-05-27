@@ -16,7 +16,7 @@ class IdentityState : State {
 
 
     private val stateSubject = MutableSharedFlow<AdtState>(
-    // replay = 2,
+     replay = 1,
     // onBufferOverflow = BufferOverflow.DROP_OLDEST,
     // extraBufferCapacity = 1
     )
