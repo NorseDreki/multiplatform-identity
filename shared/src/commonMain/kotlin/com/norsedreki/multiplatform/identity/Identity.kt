@@ -1,5 +1,8 @@
 package com.norsedreki.multiplatform.identity
 
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
+
 class Identity {
     val dispatcher = Dispatcher()
     val state = IdentityState()
@@ -11,6 +14,10 @@ class Identity {
     }
 
     operator fun invoke(action: IdentityActions) {
+        runBlocking {  }
+
+        //coroutineScope {  }
+
         dispatcher(action)
     }
 }
