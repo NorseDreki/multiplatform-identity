@@ -25,8 +25,19 @@ import kotlin.test.assertTrue
 class IdentityTest {
 
     @Test
-    fun should1() = runTest {
+    fun should1() {
+        val identity = Identity()
 
+        identity(
+            LogIn.WithPassword("dummy", "dummy")
+        )
+
+        runTest {
+            val out = identity.state.state.first()
+
+            assertTrue { out is AdtState.LoggedIn }
+            assertTrue { (out as AdtState.LoggedIn).email == "dummy" }
+        }
     }
 
     @Test

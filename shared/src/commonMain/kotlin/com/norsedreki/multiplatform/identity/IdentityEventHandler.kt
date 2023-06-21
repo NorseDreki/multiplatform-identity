@@ -42,7 +42,7 @@ internal constructor(
     }
 
     private fun loginWithPassword(action: LogIn.WithPassword) {
-        state.update(AdtState.LoggedIn("111", "111", 0, "222"))
+        state.update(AdtState.LoggedIn(action.email, "111", 0, "222"))
         println("State = $state")
     }
 
