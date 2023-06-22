@@ -47,6 +47,6 @@ internal constructor(
     }
 
     private fun logout() {
-        state.update(AdtState.NotLoggedIn)
+        state.update(AdtState.LoggingOut)
     }
 }

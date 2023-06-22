@@ -11,10 +11,14 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.replay
 import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.subscribe
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -32,6 +36,71 @@ class IdentityTest {
     @BeforeTest
     fun beforeTest() {
         identity = Identity()
+    }
+
+    @Test
+    fun `should not emit new value if it's not distinct -- idempotency`() {
+        //identity(LogOut)
+        //identity(LogOut)
+        //identity(LogOut)
+        //identity(LogOut)
+    }
+
+    @Test
+    fun `all subscribers should get a replay for the latest state`() {
+
+        //identity(LogOut)
+
+        println("111111")
+
+        runTest {
+            //identity(LogOut)
+
+            println("2222222")
+
+            val v = identity.state.state.onEach {
+                println("999999 $it")
+            }
+                .drop(1)
+                .onEach {
+                    it shouldBe AdtState.LoggingOut
+                }
+                .launchIn(this)
+
+            println("33333 $v")
+
+            delay(100)
+            identity(LogOut)
+
+            val v1 = identity.state.state.onEach {
+                println("5555 $it")
+                it shouldBe AdtState.LoggingOut
+            }.launchIn(this)
+
+            identity(LogOut)
+            identity(LogOut)
+            identity(LogOut)
+            identity(LogOut)
+
+            v.cancel()
+            v1.cancel()
+        }
+
+        /*println("666666")
+
+        identity(LogOut)
+
+        runTest {
+            identity.state.state.onEach {
+                println("5555 $it")
+                it shouldBe AdtState.LoggingOut
+            }.launchIn(this)
+
+        }*/
+
+        //identity(LogOut)
+
+
     }
 
     @Test
