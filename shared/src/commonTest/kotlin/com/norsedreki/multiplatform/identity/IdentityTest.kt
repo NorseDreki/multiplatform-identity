@@ -24,8 +24,9 @@ import kotlin.test.assertTrue
 
 class IdentityTest {
 
+
     @Test
-    fun should1() {
+    fun `wow wow wow`() {
         val identity = Identity()
 
         identity(
