@@ -40,10 +40,9 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
-                implementation("io.mockk:mockk:1.13.5")
+
+                implementation("io.kotest:kotest-assertions-core:5.6.2")
             }
         }
     }

@@ -1,6 +1,8 @@
 package com.norsedreki.multiplatform.identity
 
 import com.norsedreki.multiplatform.identity.IdentityActions.*
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,16 +20,29 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class IdentityTest {
 
+    private lateinit var identity: Identity
+
+    @BeforeTest
+    fun beforeTest() {
+        identity = Identity()
+    }
+
+    @Test
+    fun `should initialize as not logged in`() = runTest {
+        val s = identity.state.state.first()
+
+        s.shouldBeTypeOf<AdtState.NotLoggedIn>()
+    }
 
     @Test
     fun `wow wow wow`() {
-        val identity = Identity()
 
         identity(
             LogIn.WithPassword("dummy", "dummy")
@@ -37,7 +52,7 @@ class IdentityTest {
             val out = identity.state.state.first()
 
             assertTrue { out is AdtState.LoggedIn }
-            assertTrue { (out as AdtState.LoggedIn).email == "dummy" }
+            (out as AdtState.LoggedIn).email shouldBe "dummy"
         }
     }
 

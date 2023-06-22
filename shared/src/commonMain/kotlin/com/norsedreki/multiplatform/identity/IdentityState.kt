@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -14,16 +15,28 @@ class IdentityState : State {
     override val accessToken: Flow<String>
         get() = TODO("Not yet implemented")
 
+    val subscribingScope = CoroutineScope(Dispatchers.Unconfined) //CoroutineScope(SupervisorJob())
 
-    private val stateSubject = MutableSharedFlow<AdtState>(
-     replay = 1,
-    // onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    // extraBufferCapacity = 1
-    )
+    private val stateSubject = MutableStateFlow<AdtState>(AdtState.NotLoggedIn)
+
+    /*init {
+        stateSubject = MutableSharedFlow<AdtState>(
+            replay = 1,
+            // onBufferOverflow = BufferOverflow.DROP_OLDEST,
+            // extraBufferCapacity = 1
+        )
+
+        val st = MutableStateFlow(1)
+        st.
+
+        subscribingScope.launch {
+            stateSubject.emit(AdtState.NotLoggedIn)
+        }
+    }*/
 
     override val state = stateSubject.asSharedFlow()
 
-    val subscribingScope = CoroutineScope(Dispatchers.Unconfined) //CoroutineScope(SupervisorJob())
+
 
     fun update(newState: AdtState) {
         subscribingScope.launch {
