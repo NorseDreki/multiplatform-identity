@@ -2,16 +2,27 @@ plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("com.android.library")
+    id("com.google.devtools.ksp") version "1.8.21-1.0.11"
+    kotlin("plugin.serialization") version "1.8.21"
 }
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
     targetHierarchy.default()
 
+
+    //jvm()
+    //macosX64()
+    js(IR) {
+        //binaries.executable()
+        //browser {
+        //}
+        //generateTypeScriptDefinitions()
+    }
     android {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "1.8"
+                jvmTarget = "17"
             }
         }
     }
