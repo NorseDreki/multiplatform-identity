@@ -6,15 +6,15 @@ import kotlinx.coroutines.runBlocking
 class Greeting {
     private val platform: Platform = getPlatform()
 
-    private val identity = Identity()
+    //private val identity = Identity()
 
     fun greet(): String {
-        identity(IdentityActions.LogIn.WithPassword("213", "124"))
+      /*  identity(IdentityActions.LogIn.WithPassword("213", "124"))
 
         val r = runBlocking {
             identity.state.state.first()
         }
-
-        return "Hello, $r, ${platform.name}!"
+*/
+        return "Hello, ${platform.name}!"
     }
 }

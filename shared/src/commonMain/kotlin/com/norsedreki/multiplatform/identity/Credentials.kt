@@ -1,5 +1,8 @@
 package com.norsedreki.multiplatform.identity
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Credentials(
     val tokenType: String,
     val accessToken: String,

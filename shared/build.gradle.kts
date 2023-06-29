@@ -1,9 +1,11 @@
 plugins {
-    kotlin("multiplatform")
+    kotlin("multiplatform") version "1.8.21"
     kotlin("native.cocoapods")
+    kotlin("plugin.serialization") version "1.8.21"
     id("com.android.library")
     id("com.google.devtools.ksp") version "1.8.21-1.0.11"
-    kotlin("plugin.serialization") version "1.8.21"
+    //kotlin("plugin.serialization") version "1.8.21"
+
 }
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
@@ -13,12 +15,12 @@ kotlin {
 
     //jvm()
     //macosX64()
-    js(IR) {
+    //js(IR) {
         //binaries.executable()
         //browser {
         //}
         //generateTypeScriptDefinitions()
-    }
+    //}
     android {
         compilations.all {
             kotlinOptions {
@@ -51,6 +53,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 //put your multiplatform dependencies here
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
                 implementation("dev.gitlive:firebase-auth:1.8.0")
                 implementation("com.russhwolf:multiplatform-settings:1.0.0")
