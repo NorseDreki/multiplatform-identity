@@ -1,13 +1,14 @@
 package com.norsedreki.multiplatform.identity
 
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
-
-class Identity {
+class Identity(
+    tokenProvider: TokenProvider,
+    identityProvider: IdentityProvider,
+    privateState: SerializedPrivateState = FakeSerializedPrivateState()
+) {
     val dispatcher = Dispatcher()
     val state = IdentityState()
 
-    private val eh = IdentityEventHandler(dispatcher, state)
+    private val eh = IdentityEventHandler(dispatcher, state, tokenProvider, identityProvider, privateState)
 
     init {
         eh.setup()
