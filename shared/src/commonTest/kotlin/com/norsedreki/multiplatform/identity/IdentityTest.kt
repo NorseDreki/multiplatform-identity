@@ -1,205 +1,162 @@
 package com.norsedreki.multiplatform.identity
 
+import com.norsedreki.multiplatform.identity.AdtState.*
+import com.norsedreki.multiplatform.identity.FakeTokenProvider.Companion.ValidUserAEmail
+import com.norsedreki.multiplatform.identity.FakeTokenProvider.Companion.ValidUserAPassword
 import com.norsedreki.multiplatform.identity.IdentityActions.*
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.drop
+import io.mockative.Mock
+import io.mockative.classOf
+import io.mockative.mock
+import io.mockative.verify
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.replay
-import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.flow.subscribe
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withContext
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
 
 class IdentityTest {
 
     private lateinit var identity: Identity
 
+    private lateinit var privateState: SerializedPrivateState
+
+    @Mock
+    val api = mock(classOf<TokenProvider>())
+
     @BeforeTest
     fun beforeTest() {
-        identity = Identity()
-    }
-
-    @Test
-    fun `should not emit new value if it's not distinct -- idempotency`() {
-        //identity(LogOut)
-        //identity(LogOut)
-        //identity(LogOut)
-        //identity(LogOut)
-    }
-
-    @Test
-    fun `all subscribers should get a replay for the latest state`() {
-
-        //identity(LogOut)
-
-        println("111111")
-
-        runTest {
-            //identity(LogOut)
-
-            println("2222222")
-
-            val v = identity.state.state.onEach {
-                println("999999 $it")
-            }
-                .drop(1)
-                .onEach {
-                    it shouldBe AdtState.LoggingOut
-                }
-                .launchIn(this)
-
-            println("33333 $v")
-
-            delay(100)
-            identity(LogOut)
-
-            val v1 = identity.state.state.onEach {
-                println("5555 $it")
-                it shouldBe AdtState.LoggingOut
-            }.launchIn(this)
-
-            identity(LogOut)
-            identity(LogOut)
-            identity(LogOut)
-            identity(LogOut)
-
-            v.cancel()
-            v1.cancel()
-        }
-
-        /*println("666666")
-
-        identity(LogOut)
-
-        runTest {
-            identity.state.state.onEach {
-                println("5555 $it")
-                it shouldBe AdtState.LoggingOut
-            }.launchIn(this)
-
-        }*/
-
-        //identity(LogOut)
-
-
+        val ip = FakeTokenProvider()
+        privateState = FakeSerializedPrivateState()
+        identity = Identity(api, ip, privateState)
     }
 
     @Test
     fun `should initialize as not logged in`() = runTest {
         val s = identity.state.state.first()
 
-        s.shouldBeTypeOf<AdtState.NotLoggedIn>()
+        s.shouldBeTypeOf<NotLoggedIn>()
     }
 
     @Test
-    fun `wow wow wow`() {
-
+    fun `log in with valid email and password`() = runTest {
         identity(
-            LogIn.WithPassword("dummy", "dummy")
+            LogIn.WithPassword(ValidUserAEmail, ValidUserAPassword)
         )
 
-        runTest {
-            val out = identity.state.state.first()
+        val out = identity.state.state.first()
 
-            assertTrue { out is AdtState.LoggedIn }
-            (out as AdtState.LoggedIn).email shouldBe "dummy"
-        }
+        out.shouldBeTypeOf<LoggedIn>()
+        out.email shouldBe ValidUserAEmail
     }
 
     @Test
-    fun shouldLoginWithCorrectEmailPassword() {
-        val identity = Identity()
-
-        val dest = mutableListOf<AdtState>()
-
-        identity.state.subscribingScope.launch {
-            identity.state.state
-                .onEach { println("Next state $it") }
-                .toList(dest)
-        }
-
+    fun `fail to login with invalid credentials`() = runTest {
         identity(
-            LogIn.WithPassword("dummy", "dummy")
+            LogIn.WithPassword("invalidEmail", "invalidPassword")
         )
 
+        // Add Turbine library for catching several states
 
-
-
-        runBlocking {
-            launch {
-
-            }
-
-            async {  }
-
-            withContext(Dispatchers.Default) {
-                //async {  }
-            }
-
-            assertTrue { dest[0] is AdtState.LoggedIn }
-            identity(LogOut)
-        }
+        val out = identity.state.state.first()
+        // OR catch an exception instead?
+        out.shouldBeTypeOf<LoginFailed>()
     }
 
     @Test
-    fun shouldNotLoginWithIncorrectEmailPassword() {
-        val identity = Identity()
+    fun `logout with success`() = runTest {
+        identity(
+            LogIn.WithPassword(ValidUserAEmail, ValidUserAPassword)
+        )
 
-        assertTrue { true }
+        identity(
+            LogOut
+        )
 
-        /*assertFailsWith(
-            RuntimeException::class,
-            "Expected an exception if loggind out w/o logging in"
-        ) {
-            identity(
-                LogIn.WithPassword("incorrect", "incorrect")
-            )
-        }*/
+        val out = identity.state.state.first()
+        out.shouldBeTypeOf<NotLoggedIn>()
+
+        privateState.get() shouldBe null
+
+        //verify that local data is cleared up
+/*        verify(api)
+            .invocation { revokeToken() }
+            .wasInvoked()*/
     }
 
     @Test
-    fun shouldLogoutIfLoggedIn() {
-        val sut = Identity()
+    fun `should not emit new value if it's not distinct -- idempotency`() {
+        identity(
+            LogIn.WithPassword(ValidUserAEmail, ValidUserAPassword)
+        )
 
-        sut(LogOut)
+        identity(
+            LogOut
+        )
 
-        runBlocking {
-            val s = sut.state.state.first()
-
-            assertTrue("Expected being logged out after logging in") { s == AdtState.NotLoggedIn }
-        }
+        //identity(LogOut)
+        //identity(LogOut)
+        //identity(LogOut)
+        //identity(LogOut)
     }
 
     @Test
-    fun shouldThrowExceptionForLogoutIfNotLoggedIn() {
-        val sut = Identity()
+    fun `auto-login if access token is saved locally`() = runTest {
+        identity(
+            LogIn.WithPassword(ValidUserAEmail, ValidUserAPassword)
+        )
 
-        assertTrue { true }
+        /*identity(
+            LogOut
+        )*/
 
-        /*assertFailsWith(
-            RuntimeException::class,
-            "Expected an exception if loggind out w/o logging in"
-        ) {
-            sut(LogOut)
-        }*/
+        val ip = FakeTokenProvider()
+        val newIdentity = Identity(api, ip, privateState)
+
+        val out = newIdentity.state.state.first()
+        out.shouldBeTypeOf<LoggedIn>()
+        out.email shouldBe ValidUserAEmail
+    }
+
+    @Test
+    fun `persist and reload feature state`() = runTest {
+        identity(
+            LogIn.WithPassword(ValidUserAEmail, ValidUserAPassword)
+        )
+
+        identity(
+            LogOut
+        )
+
+        val ip = FakeTokenProvider()
+        val newIdentity = Identity(api, ip, privateState)
+
+        val out = newIdentity.state.state.first()
+        out.shouldBeTypeOf<NotLoggedIn>()
+
+        //create a feature and login
+
+        // kill / stop using feature
+
+        // create new feature instance and observe restored state
+    }
+
+    @Test
+    fun `should record logged in analytics event`() = runTest {
+
+    }
+
+    @Test fun `should log debug events for developers`() = runTest {
+
+    }
+
+    @Test
+    fun `saved tokens should be encrypted`() {
+
+    }
+
+    @Test
+    fun `should cancel all subscriptions upon stop`() {
+
     }
 }

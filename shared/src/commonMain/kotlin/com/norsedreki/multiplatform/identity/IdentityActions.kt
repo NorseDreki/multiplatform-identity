@@ -7,6 +7,9 @@ sealed interface IdentityActions : Event {
     }
 
     sealed interface PasswordLess : IdentityActions {
+        object Passkey: PasswordLess //Google or Apple passkey support
+        // for sites supporting sign in with Google / sign in with Apple
+
 
     }
 
@@ -14,6 +17,10 @@ sealed interface IdentityActions : Event {
 
     sealed interface LogIn : IdentityActions {
         data class WithPassword(val email: String, val password: String) : LogIn
+
+        object WithGoogle : LogIn
+
+        object WithApple : LogIn
     }
 
     //Might be challenged by CAPTCHA
@@ -39,6 +46,7 @@ sealed interface IdentityActions : Event {
 
     data class AddAuthenticationFactor(val factor: String) : IdentityActions
 
+    //Check out OneTap SDK from Google
     object PickSystemAccount : IdentityActions
 
     data class ChangePassword(val p: String) : IdentityActions
